@@ -8,10 +8,6 @@ The software development process consists of several interactions with different
 
 It might be silly to spend time developing something to automate these processes, but the amount of time wasted could worth a solution like that.
 
-## Why Golang
-
-[Golang](https://golang.org/) is one of the biggest and most used languages used for command lines, so it seems to be a good fit for this project.
-
 ## How it works
 
 The CLI has different commands for different actions, below you can see how it works:
@@ -36,6 +32,10 @@ task finish <ISSUE-ID>
 Flow:
 1. Set the issue passed as param to verify stage on a issue tracker (eg: Jira)
 2. Remove the label `work-in-progress` from the PR
+
+## Why Golang?
+
+[Golang](https://golang.org/) is one of the biggest and most used languages used for command lines, so it seems to be a good fit for this project.
 
 ## License
 
