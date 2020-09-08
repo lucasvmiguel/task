@@ -4,7 +4,7 @@ Task is a [CLI](https://en.wikipedia.org/wiki/Command-line_interface) that autom
 
 ## Problem Statement
 
-The software development process consists of several interactions with different softwares: reading an issue on Jira, creating a PR on Github, and so on.
+The software development process consist of several interactions with different softwares. It would be a saving of time if a program could make the bridge between you and a software, updating your tasks status automatically, creating a pull request for you each time you have to work on something and so on. Then many hands can work at the same time by doing loads of things at the same time.
 
 It might be silly to spend time developing something to automate these processes, but the amount of time wasted could worth a solution like that.
 
