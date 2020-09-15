@@ -3,32 +3,32 @@ package github
 import (
 	"context"
 
+	"github.com/lucasvmiguel/task/internal/gitrepo"
+
 	"github.com/google/go-github/v32/github"
 	"github.com/pkg/errors"
 	"golang.org/x/oauth2"
 )
 
+// Client to communicate with Github
 type Client struct {
-	Host   string
-	Token  string
-	Org    string
-	Repo   string
 	client *github.Client
 }
 
-func (c *Client) Authenticate() error {
+// Authenticate to github
+func (c *Client) Authenticate(host, token string) error {
 	ctx := context.Background()
 	ts := oauth2.StaticTokenSource(
-		&oauth2.Token{AccessToken: c.Token},
+		&oauth2.Token{AccessToken: token},
 	)
 	tc := oauth2.NewClient(ctx, ts)
 
 	var client *github.Client
 	var err error
-	if c.Host == "" {
+	if host == "" {
 		client = github.NewClient(tc)
 	} else {
-		client, err = github.NewEnterpriseClient(c.Host, c.Host, nil)
+		client, err = github.NewEnterpriseClient(host, host, nil)
 		if err != nil {
 			return errors.Wrap(err, "failed to authenticate with enterprise github")
 		}
@@ -38,19 +38,19 @@ func (c *Client) Authenticate() error {
 	return nil
 }
 
-func (c *Client) CreatePR(branch, title, description string) error {
-	base := "master"
-
-	newPR := &github.NewPullRequest{
-		Title: &title,
-		Base:  &base,
-		Head:  &branch,
-		Body:  &description,
+// CreatePR creates a pull request on github
+func (c *Client) CreatePR(newPR gitrepo.NewPR) (string, error) {
+	pr := &github.NewPullRequest{
+		Title: github.String(newPR.Title),
+		Base:  github.String("master"),
+		Head:  github.String(newPR.Branch),
+		Body:  github.String(newPR.Description),
 	}
 
-	_, _, err := c.client.PullRequests.Create(context.Background(), c.Org, c.Repo, newPR)
+	p, _, err := c.client.PullRequests.Create(context.Background(), newPR.Org, newPR.Repository, pr)
 	if err != nil {
-		return errors.Wrap(err, "failed to authenticate with jira")
+		return "", errors.Wrap(err, "failed to create PR on github")
 	}
-	return nil
+
+	return p.GetHTMLURL(), nil
 }

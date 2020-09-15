@@ -1,5 +1,6 @@
 package versioncontrol
 
+// VersionControl is an interface to represent any version control like git
 type VersionControl interface {
-	CreateBranch(name string) error
+	CreateBranchAndPush(name string) error
 }

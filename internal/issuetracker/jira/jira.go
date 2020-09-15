@@ -1,25 +1,25 @@
 package jira
 
 import (
-	"github.com/andygrunwald/go-jira"
 	"github.com/lucasvmiguel/task/internal/issuetracker"
+
+	"github.com/andygrunwald/go-jira"
 	"github.com/pkg/errors"
 )
 
+// Client to communicate with Jira
 type Client struct {
-	Host     string
-	Username string
-	Key      string
-	client   *jira.Client
+	client *jira.Client
 }
 
-func (c *Client) Authenticate() error {
+// Authenticate to a Jira server
+func (c *Client) Authenticate(host, username, key string) error {
 	tp := jira.BasicAuthTransport{
-		Username: c.Username,
-		Password: c.Key,
+		Username: username,
+		Password: key,
 	}
 
-	client, err := jira.NewClient(tp.Client(), c.Host)
+	client, err := jira.NewClient(tp.Client(), host)
 	if err != nil {
 		return errors.Wrap(err, "failed to authenticate with jira")
 	}
@@ -28,6 +28,7 @@ func (c *Client) Authenticate() error {
 	return nil
 }
 
+// Issue fetches an issue on Jira by the issue ID
 func (c *Client) Issue(ID string) (*issuetracker.Issue, error) {
 	issue, _, err := c.client.Issue.Get(ID, nil)
 	if err != nil {
