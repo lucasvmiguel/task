@@ -6,7 +6,7 @@ on:
 jobs:
 
   build_and_release:
-    name: Build
+    name: Build and Release
     runs-on: ubuntu-latest
     steps:
 
@@ -18,6 +18,8 @@ jobs:
 
     - name: Check out code into the Go module directory
       uses: actions/checkout@v2
+      with:
+        fetch-depth: '0'
 
     - name: Test
       run: make test
@@ -25,8 +27,30 @@ jobs:
     - name: Build
       run: make build
 
+    - name: Bump version and push tag
+      id: push_tag
+      uses: anothrNick/github-tag-action@1.26.0
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        WITH_V: true
+
     - name: Create Release
-      uses: ncipollo/release-action@v1
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        artifacts: task.tar.gz
-        token: ${{ secrets.GITHUB_TOKEN }}
+        tag_name: ${{ steps.push_tag.outputs.new_tag }}
+        release_name: Release ${{ steps.push_tag.outputs.new_tag }}
+        draft: false
+        prerelease: false
+
+    - name: Upload Release Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./task.tar.gz
+        asset_name: task.tar.gz
+        asset_content_type: application/gzip
