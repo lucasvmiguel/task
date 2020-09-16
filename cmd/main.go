@@ -70,7 +70,8 @@ var (
 			cmd, err := command.New(command.NewParams{
 				IssueTracker: issueTracker,
 				GitRepo:      gitRepo,
-				// version control is initialized without using factory because
+				// version control is initialized without using factory,
+				// different than issue tracker for example, because
 				// there are no plans of implementing others than git
 				VersionControl: &git.Client{},
 			})

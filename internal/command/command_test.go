@@ -4,10 +4,11 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/go-test/deep"
 	"github.com/lucasvmiguel/task/internal/gitrepo/github"
 	"github.com/lucasvmiguel/task/internal/issuetracker/jira"
 	"github.com/lucasvmiguel/task/internal/versioncontrol/git"
+
+	"github.com/go-test/deep"
 )
 
 func TestNew(t *testing.T) {

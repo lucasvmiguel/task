@@ -4,10 +4,10 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/go-test/deep"
-
 	"github.com/lucasvmiguel/task/internal/gitrepo"
 	"github.com/lucasvmiguel/task/internal/issuetracker"
+
+	"github.com/go-test/deep"
 )
 
 type IssueTrackerMock struct{}

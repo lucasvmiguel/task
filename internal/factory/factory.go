@@ -7,6 +7,7 @@ import (
 	"github.com/lucasvmiguel/task/internal/gitrepo/github"
 	"github.com/lucasvmiguel/task/internal/issuetracker"
 	"github.com/lucasvmiguel/task/internal/issuetracker/jira"
+
 	"github.com/pkg/errors"
 )
 

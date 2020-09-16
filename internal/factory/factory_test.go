@@ -7,9 +7,9 @@ import (
 	"github.com/lucasvmiguel/task/internal/gitrepo/github"
 	"github.com/lucasvmiguel/task/internal/issuetracker"
 	"github.com/lucasvmiguel/task/internal/issuetracker/jira"
-	"github.com/pkg/errors"
 
 	"github.com/go-test/deep"
+	"github.com/pkg/errors"
 )
 
 func TestGitRepo(t *testing.T) {

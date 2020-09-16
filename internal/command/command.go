@@ -24,22 +24,22 @@ type NewParams struct {
 }
 
 // New is a function to create a new Command struct
-func New(config NewParams) (*Command, error) {
-	if config.IssueTracker == nil {
+func New(params NewParams) (*Command, error) {
+	if params.IssueTracker == nil {
 		return nil, errors.New("issue tracker cannot be nil")
 	}
 
-	if config.GitRepo == nil {
+	if params.GitRepo == nil {
 		return nil, errors.New("git repo cannot be nil")
 	}
 
-	if config.VersionControl == nil {
+	if params.VersionControl == nil {
 		return nil, errors.New("version control cannot be nil")
 	}
 
 	return &Command{
-		IssueTracker:   config.IssueTracker,
-		GitRepo:        config.GitRepo,
-		VersionControl: config.VersionControl,
+		IssueTracker:   params.IssueTracker,
+		GitRepo:        params.GitRepo,
+		VersionControl: params.VersionControl,
 	}, nil
 }
