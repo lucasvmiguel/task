@@ -1,3 +1,5 @@
+// Package issuetracker provides all the required structs and
+// interfaces to use a issue tracker (eg: trello, jira, etc)
 package issuetracker
 
 // IssueTracker is a interface to represent any issue tracker (eg: trello, jira, etc)

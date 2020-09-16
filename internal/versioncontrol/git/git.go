@@ -1,3 +1,4 @@
+// Package git that implements VersionControl interface
 package git
 
 import (

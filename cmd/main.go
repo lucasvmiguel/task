@@ -6,10 +6,7 @@ import (
 	"os"
 
 	"github.com/lucasvmiguel/task/internal/command"
-	"github.com/lucasvmiguel/task/internal/gitrepo"
-	"github.com/lucasvmiguel/task/internal/gitrepo/github"
-	"github.com/lucasvmiguel/task/internal/issuetracker"
-	"github.com/lucasvmiguel/task/internal/issuetracker/jira"
+	"github.com/lucasvmiguel/task/internal/factory"
 	"github.com/lucasvmiguel/task/internal/versioncontrol/git"
 
 	"github.com/urfave/cli/v2"
@@ -49,9 +46,30 @@ var (
 		Action: func(c *cli.Context) error {
 			cfg := config(c.String("config-path"))
 
-			cmd, err := command.New(command.Config{
-				IssueTracker:   issueTracker(cfg),
-				GitRepo:        gitRepo(cfg),
+			gitRepo, err := factory.GitRepo(factory.GitRepoParams{
+				Provider: factory.GitRepoProvider(cfg.GitRepo.Provider),
+				Host:     cfg.GitRepo.Host,
+				Token:    cfg.GitRepo.Token,
+			})
+			if err != nil {
+				fmt.Println(err.Error())
+				os.Exit(1)
+			}
+
+			issueTracker, err := factory.IssueTracker(factory.IssueTrackerParams{
+				Provider: factory.IssueTrackerProvider(cfg.IssueTracker.Provider),
+				Host:     cfg.IssueTracker.Host,
+				Username: cfg.IssueTracker.Username,
+				Key:      cfg.IssueTracker.Key,
+			})
+			if err != nil {
+				fmt.Println(err.Error())
+				os.Exit(1)
+			}
+
+			cmd, err := command.New(command.NewParams{
+				IssueTracker:   issueTracker,
+				GitRepo:        gitRepo,
 				VersionControl: &git.Client{},
 			})
 			if err != nil {
@@ -116,44 +134,4 @@ func config(path string) configuration {
 	}
 
 	return c
-}
-
-// returns a git repository
-func gitRepo(cfg configuration) gitrepo.GitRepo {
-	var gitRepo gitrepo.GitRepo
-	switch cfg.GitRepo.Provider {
-	case "github":
-		gitRepo = &github.Client{}
-	default:
-		fmt.Println("invalid git repo")
-		os.Exit(1)
-	}
-
-	err := gitRepo.Authenticate(cfg.GitRepo.Host, cfg.GitRepo.Token)
-	if err != nil {
-		fmt.Println("failed to authenticate git repo")
-		os.Exit(1)
-	}
-
-	return gitRepo
-}
-
-// returns a issue tracker
-func issueTracker(cfg configuration) issuetracker.IssueTracker {
-	var issueTracker issuetracker.IssueTracker
-	switch cfg.IssueTracker.Provider {
-	case "jira":
-		issueTracker = &jira.Client{}
-	default:
-		fmt.Println("invalid issue tracker")
-		os.Exit(1)
-	}
-
-	err := issueTracker.Authenticate(cfg.IssueTracker.Host, cfg.IssueTracker.Username, cfg.IssueTracker.Key)
-	if err != nil {
-		fmt.Println("failed to authenticate issue tracker")
-		os.Exit(1)
-	}
-
-	return issueTracker
 }

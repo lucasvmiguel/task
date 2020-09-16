@@ -1,3 +1,4 @@
+// Package github that implements GitRepo interface
 package github
 
 import (
