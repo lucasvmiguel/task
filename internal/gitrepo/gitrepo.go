@@ -1,3 +1,5 @@
+// Package gitrepo provides all the required structs and
+// interfaces to use a git repository (eg: github, gitlab, bitbucket)
 package gitrepo
 
 // GitRepo is a interface to represent any git repository (eg: github, gitlab, bitbucket)

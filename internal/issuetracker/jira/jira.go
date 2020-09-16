@@ -1,3 +1,4 @@
+// Package jira that implements IssueTracker interface
 package jira
 
 import (
