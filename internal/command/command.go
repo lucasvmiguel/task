@@ -3,6 +3,7 @@ package command
 
 import (
 	"errors"
+	"strings"
 
 	"github.com/lucasvmiguel/task/internal/gitrepo"
 	"github.com/lucasvmiguel/task/internal/issuetracker"
@@ -42,4 +43,14 @@ func New(params NewParams) (*Command, error) {
 		GitRepo:        params.GitRepo,
 		VersionControl: params.VersionControl,
 	}, nil
+}
+
+func replaceInTemplate(text string, issue *issuetracker.Issue) string {
+	r := strings.NewReplacer(
+		"{{ISSUE_TRACKER.ID}}", issue.ID,
+		"{{ISSUE_TRACKER.TITLE}}", issue.Title,
+		"{{ISSUE_TRACKER.DESCRIPTION}}", issue.Description,
+	)
+
+	return r.Replace(text)
 }

@@ -6,6 +6,7 @@ import (
 
 	"github.com/lucasvmiguel/task/internal/gitrepo"
 	"github.com/lucasvmiguel/task/internal/issuetracker"
+	"github.com/lucasvmiguel/task/internal/versioncontrol"
 
 	"github.com/go-test/deep"
 )
@@ -56,98 +57,104 @@ func (i *VersionControlMock) CreateBranchAndPush(name string) error {
 	return nil
 }
 
+func (i *VersionControlMock) Origin() (*versioncontrol.Origin, error) {
+	return &versioncontrol.Origin{Org: "test-org", Repository: "test-repo"}, nil
+}
+
 type VersionControlFailedMock struct{}
 
 func (i *VersionControlFailedMock) CreateBranchAndPush(name string) error {
 	return errors.New("error creating or pushing branch")
 }
 
+func (i *VersionControlFailedMock) Origin() (*versioncontrol.Origin, error) {
+	return nil, errors.New("error getting origin")
+}
+
 func TestStart(t *testing.T) {
 	var tests = []struct {
 		params struct {
-			command Command
-			ID      string
-			org     string
-			repo    string
+			command     Command
+			startParams StartParams
 		}
 		expected string
 	}{
 		{
 			params: struct {
-				command Command
-				ID      string
-				org     string
-				repo    string
+				command     Command
+				startParams StartParams
 			}{
 				command: Command{
 					IssueTracker:   &IssueTrackerMock{},
 					GitRepo:        &GitRepoMock{},
 					VersionControl: &VersionControlMock{},
 				},
-				ID:   "test",
-				org:  "org-test",
-				repo: "repo-test",
+				startParams: StartParams{
+					ID:                  "test",
+					TitleTemplate:       "testing: {{ISSUE_TRACKER.ID}}",
+					DescriptionTemplate: "# Description\n\n {{ISSUE_TRACKER.TITLE}}",
+				},
 			},
 			expected: "",
 		},
 		{
 			params: struct {
-				command Command
-				ID      string
-				org     string
-				repo    string
+				command     Command
+				startParams StartParams
 			}{
 				command: Command{
 					IssueTracker:   &IssueTrackerFailedMock{},
 					GitRepo:        &GitRepoMock{},
 					VersionControl: &VersionControlMock{},
 				},
-				ID:   "test",
-				org:  "org-test",
-				repo: "repo-test",
+				startParams: StartParams{
+					ID:                  "test",
+					TitleTemplate:       "testing: {{ISSUE_TRACKER.ID}}",
+					DescriptionTemplate: "# Description\n\n {{ISSUE_TRACKER.TITLE}}",
+				},
 			},
 			expected: "failed to fetch issue: error fetching issue",
 		},
 		{
 			params: struct {
-				command Command
-				ID      string
-				org     string
-				repo    string
+				command     Command
+				startParams StartParams
 			}{
 				command: Command{
 					IssueTracker:   &IssueTrackerMock{},
 					GitRepo:        &GitRepoFailedMock{},
 					VersionControl: &VersionControlMock{},
 				},
-				ID:   "test",
-				org:  "org-test",
-				repo: "repo-test",
+				startParams: StartParams{
+					ID:                  "test",
+					TitleTemplate:       "testing: {{ISSUE_TRACKER.ID}}",
+					DescriptionTemplate: "# Description\n\n {{ISSUE_TRACKER.TITLE}}",
+				},
 			},
 			expected: "failed to create pull request: error creating pr",
 		},
 		{
 			params: struct {
-				command Command
-				ID      string
-				org     string
-				repo    string
+				command     Command
+				startParams StartParams
 			}{
 				command: Command{
 					IssueTracker:   &IssueTrackerMock{},
 					GitRepo:        &GitRepoMock{},
 					VersionControl: &VersionControlFailedMock{},
 				},
-				ID:   "test",
-				org:  "org-test",
-				repo: "repo-test",
+				startParams: StartParams{
+					ID:                  "test",
+					TitleTemplate:       "testing: {{ISSUE_TRACKER.ID}}",
+					DescriptionTemplate: "# Description\n\n {{ISSUE_TRACKER.TITLE}}",
+				},
 			},
-			expected: "failed to create branch, branch may exist already: error creating or pushing branch",
+			expected: "failed to get origin from the repository: error getting origin",
 		},
 	}
 
 	for _, tt := range tests {
-		result := tt.params.command.Start(tt.params.ID, tt.params.org, tt.params.repo)
+		result := tt.params.command.Start(tt.params.startParams)
 		err := ""
 		if result != nil {
 			err = result.Error()

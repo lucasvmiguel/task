@@ -23,18 +23,16 @@ type configuration struct {
 		Key      string `yaml:"key"`
 	} `yaml:"issue-tracker"`
 	GitRepo struct {
-		Provider    string `yaml:"provider"`
-		Host        string `yaml:"host"`
-		Token       string `yaml:"token"`
-		Org         string `yaml:"org"`
-		Repository  string `yaml:"repository"`
-		PullRequest struct {
-			New struct {
+		Provider string `yaml:"provider"`
+		Host     string `yaml:"host"`
+		Token    string `yaml:"token"`
+		Command  struct {
+			Start struct {
 				Title       string `yaml:"title"`
 				Description string `yaml:"description"`
-			} `yaml:"new"`
-		} `yaml:"pull-request"`
-	} `yaml:"git-repo"`
+			} `yaml:"start"`
+		} `yaml:"command"`
+	} `yaml:"git-repository"`
 }
 
 // CLI Commands
@@ -79,7 +77,11 @@ var (
 				fmt.Println(err.Error())
 				os.Exit(1)
 			}
-			err = cmd.Start(c.Args().First(), cfg.GitRepo.Org, cfg.GitRepo.Repository)
+			err = cmd.Start(command.StartParams{
+				ID:                  c.Args().First(),
+				TitleTemplate:       cfg.GitRepo.Command.Start.Title,
+				DescriptionTemplate: cfg.GitRepo.Command.Start.Description,
+			})
 			if err != nil {
 				fmt.Println(err.Error())
 				os.Exit(1)
