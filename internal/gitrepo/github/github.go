@@ -18,6 +18,10 @@ type Client struct {
 
 // Authenticate to github
 func (c *Client) Authenticate(host, token string) error {
+	if token == "" {
+		return errors.New("token cannot be empty")
+	}
+
 	ctx := context.Background()
 	ts := oauth2.StaticTokenSource(
 		&oauth2.Token{AccessToken: token},
@@ -41,6 +45,10 @@ func (c *Client) Authenticate(host, token string) error {
 
 // CreatePR creates a pull request on github
 func (c *Client) CreatePR(newPR gitrepo.NewPR) (string, error) {
+	if newPR.Title == "" || newPR.Branch == "" || newPR.Org == "" || newPR.Repository == "" {
+		return "", errors.New("title, branch, org and repository cannot be empty")
+	}
+
 	pr := &github.NewPullRequest{
 		Title: github.String(newPR.Title),
 		Base:  github.String("master"),

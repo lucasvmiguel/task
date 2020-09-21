@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -42,7 +43,13 @@ var (
 		Name:  "start",
 		Usage: "start a task",
 		Action: func(c *cli.Context) error {
-			cfg := config(c.String("config-path"))
+			configPath := c.String("config-path")
+			if configPath == "" {
+				fmt.Println(errors.New("config-path flag must be present"))
+				os.Exit(1)
+			}
+
+			cfg := config(configPath)
 
 			gitRepo, err := factory.GitRepo(factory.GitRepoParams{
 				Provider: factory.GitRepoProvider(cfg.GitRepo.Provider),
@@ -77,6 +84,7 @@ var (
 				fmt.Println(err.Error())
 				os.Exit(1)
 			}
+
 			err = cmd.Start(command.StartParams{
 				ID:                  c.Args().First(),
 				TitleTemplate:       cfg.GitRepo.Command.Start.Title,

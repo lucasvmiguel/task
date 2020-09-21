@@ -42,6 +42,10 @@ type IssueTrackerParams struct {
 
 // GitRepo returns a struct that implements GitRepo interface
 func GitRepo(params GitRepoParams) (gitrepo.GitRepo, error) {
+	if params.Token == "" {
+		return nil, errors.New("token param cannot be empty")
+	}
+
 	var gitRepo gitrepo.GitRepo
 	switch params.Provider {
 	case Github:
@@ -60,6 +64,10 @@ func GitRepo(params GitRepoParams) (gitrepo.GitRepo, error) {
 
 // IssueTracker returns a struct that implements IssueTracker interface
 func IssueTracker(params IssueTrackerParams) (issuetracker.IssueTracker, error) {
+	if params.Key == "" {
+		return nil, errors.New("key param cannot be empty")
+	}
+
 	var issueTracker issuetracker.IssueTracker
 	switch params.Provider {
 	case "jira":

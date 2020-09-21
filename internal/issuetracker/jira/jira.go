@@ -15,6 +15,10 @@ type Client struct {
 
 // Authenticate to a Jira server
 func (c *Client) Authenticate(host, username, key string) error {
+	if username == "" || key == "" {
+		return errors.New("username and key cannot be empty")
+	}
+
 	tp := jira.BasicAuthTransport{
 		Username: username,
 		Password: key,
@@ -31,6 +35,10 @@ func (c *Client) Authenticate(host, username, key string) error {
 
 // Issue fetches an issue on Jira by the issue ID
 func (c *Client) Issue(ID string) (*issuetracker.Issue, error) {
+	if ID == "" {
+		return nil, errors.New("ID cannot be empty")
+	}
+
 	issue, _, err := c.client.Issue.Get(ID, nil)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to fetch issue on jira")
