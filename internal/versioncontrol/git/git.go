@@ -15,6 +15,10 @@ type Client struct{}
 // CreateBranchAndPush uses git create a local branch and push it to remote
 // is going to fail in case it cannot be created or pushed
 func (c *Client) CreateBranchAndPush(name string) error {
+	if name == "" {
+		return errors.New("name cannot be empty")
+	}
+
 	err := exec.Command("git", "checkout", "-b", name).Run()
 	if err != nil {
 		return errors.Wrap(err, "failed to create a git branch")

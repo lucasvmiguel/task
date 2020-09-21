@@ -21,6 +21,10 @@ type StartParams struct {
 // 3. creates a PR on a git repository
 // 4. returns the PR link
 func (c *Command) Start(params StartParams) error {
+	if params.ID == "" {
+		return errors.New("ID param cannot be empty")
+	}
+
 	issue, err := c.IssueTracker.Issue(params.ID)
 	if err != nil {
 		return errors.Wrap(err, "failed to fetch issue")
