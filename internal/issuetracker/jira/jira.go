@@ -14,7 +14,6 @@ type Client struct {
 }
 
 // Authenticate to a Jira server
-// TODO: validate if host, username and key are valid strings
 func (c *Client) Authenticate(host, username, key string) error {
 	if username == "" || key == "" {
 		return errors.New("username and key cannot be empty")
