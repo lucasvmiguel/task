@@ -55,6 +55,8 @@ var (
 		Usage: "starts a task",
 		Action: func(c *cli.Context) error {
 			log.Info("command start has been executed")
+			confirmCommand()
+
 			log.DebugEnabled = c.IsSet("debug")
 
 			configPath := c.String("config-path")
@@ -166,4 +168,14 @@ func config(path string) configuration {
 func exitWithError(err error, message string) {
 	log.Error(errors.Wrap(err, message))
 	os.Exit(1)
+}
+
+func confirmCommand() {
+	confirmInput := ""
+	log.Info("are you sure? (write 'yes' to confirm):")
+	fmt.Scanf("%s", &confirmInput)
+	if confirmInput != "yes" {
+		log.Info("command cancelled")
+		os.Exit(0)
+	}
 }
