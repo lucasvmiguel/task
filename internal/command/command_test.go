@@ -6,6 +6,7 @@ import (
 
 	"github.com/lucasvmiguel/task/internal/gitrepo/github"
 	"github.com/lucasvmiguel/task/internal/issuetracker/jira"
+	"github.com/lucasvmiguel/task/internal/log/terminal"
 	"github.com/lucasvmiguel/task/internal/versioncontrol/git"
 
 	"github.com/go-test/deep"
@@ -22,11 +23,13 @@ func TestNew(t *testing.T) {
 				IssueTracker:   &jira.Client{},
 				GitRepo:        &github.Client{},
 				VersionControl: &git.Client{},
+				Logger:         &terminal.Logger{},
 			},
 			&Command{
-				IssueTracker:   &jira.Client{},
-				GitRepo:        &github.Client{},
-				VersionControl: &git.Client{},
+				issueTracker:   &jira.Client{},
+				gitRepo:        &github.Client{},
+				versionControl: &git.Client{},
+				logger:         &terminal.Logger{},
 			},
 			nil,
 		},
@@ -35,6 +38,7 @@ func TestNew(t *testing.T) {
 				IssueTracker:   nil,
 				GitRepo:        &github.Client{},
 				VersionControl: &git.Client{},
+				Logger:         &terminal.Logger{},
 			},
 			nil,
 			errors.New("issue tracker cannot be nil"),
@@ -44,6 +48,7 @@ func TestNew(t *testing.T) {
 				IssueTracker:   &jira.Client{},
 				GitRepo:        nil,
 				VersionControl: &git.Client{},
+				Logger:         &terminal.Logger{},
 			},
 			nil,
 			errors.New("git repo cannot be nil"),
@@ -53,9 +58,20 @@ func TestNew(t *testing.T) {
 				IssueTracker:   &jira.Client{},
 				GitRepo:        &github.Client{},
 				VersionControl: nil,
+				Logger:         &terminal.Logger{},
 			},
 			nil,
 			errors.New("version control cannot be nil"),
+		},
+		{
+			NewParams{
+				IssueTracker:   &jira.Client{},
+				GitRepo:        &github.Client{},
+				VersionControl: &git.Client{},
+				Logger:         nil,
+			},
+			nil,
+			errors.New("logger cannot be nil"),
 		},
 	}
 
@@ -72,7 +88,7 @@ func TestNew(t *testing.T) {
 				t.Error(err)
 			}
 
-			return
+			continue
 		}
 
 		if diff := deep.Equal(err, tt.expectedError); diff != nil {

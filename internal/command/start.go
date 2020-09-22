@@ -1,10 +1,9 @@
 package command
 
 import (
-	"fmt"
-
 	"github.com/lucasvmiguel/task/internal/gitrepo"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/pkg/errors"
 )
 
@@ -21,38 +20,43 @@ type StartParams struct {
 // 3. creates a PR on a git repository
 // 4. returns the PR link
 func (c *Command) Start(params StartParams) error {
+	c.logger.Debugf("start params: %v", spew.Sdump(params))
+
 	if params.ID == "" {
-		return errors.New("ID param cannot be empty")
+		return errors.New("task ID cannot be empty")
 	}
 
-	issue, err := c.IssueTracker.Issue(params.ID)
+	issue, err := c.issueTracker.Issue(params.ID)
 	if err != nil {
 		return errors.Wrap(err, "failed to fetch issue")
 	}
 	issue.ID = params.ID
 
-	origin, err := c.VersionControl.Origin()
+	origin, err := c.versionControl.Origin()
 	if err != nil {
 		return errors.Wrap(err, "failed to get origin from the repository")
 	}
 
-	err = c.VersionControl.CreateBranchAndPush(issue.ID)
+	err = c.versionControl.CreateBranchAndPush(issue.ID)
 	if err != nil {
 		return errors.Wrap(err, "failed to create branch, branch may exist already")
 	}
 
-	prLink, err := c.GitRepo.CreatePR(gitrepo.NewPR{
+	newPR := gitrepo.NewPR{
 		Branch:      issue.ID,
 		Title:       replaceInTemplate(params.TitleTemplate, issue),
 		Description: replaceInTemplate(params.DescriptionTemplate, issue),
 		Org:         origin.Org,
 		Repository:  origin.Repository,
-	})
+	}
+
+	c.logger.Debugf("start params: %v", spew.Sdump(newPR))
+	prLink, err := c.gitRepo.CreatePR(newPR)
 	if err != nil {
 		return errors.Wrap(err, "failed to create pull request")
 	}
 
-	fmt.Println("here is the PR: " + prLink)
+	c.logger.Infof("PR created, here is the link: %s", prLink)
 
 	return nil
 }

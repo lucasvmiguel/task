@@ -6,6 +6,7 @@ import (
 
 	"github.com/lucasvmiguel/task/internal/gitrepo"
 	"github.com/lucasvmiguel/task/internal/issuetracker"
+	"github.com/lucasvmiguel/task/internal/log/terminal"
 	"github.com/lucasvmiguel/task/internal/versioncontrol"
 
 	"github.com/go-test/deep"
@@ -85,9 +86,10 @@ func TestStart(t *testing.T) {
 				startParams StartParams
 			}{
 				command: Command{
-					IssueTracker:   &IssueTrackerMock{},
-					GitRepo:        &GitRepoMock{},
-					VersionControl: &VersionControlMock{},
+					issueTracker:   &IssueTrackerMock{},
+					gitRepo:        &GitRepoMock{},
+					versionControl: &VersionControlMock{},
+					logger:         &terminal.Logger{},
 				},
 				startParams: StartParams{
 					ID:                  "test",
@@ -103,9 +105,10 @@ func TestStart(t *testing.T) {
 				startParams StartParams
 			}{
 				command: Command{
-					IssueTracker:   &IssueTrackerFailedMock{},
-					GitRepo:        &GitRepoMock{},
-					VersionControl: &VersionControlMock{},
+					issueTracker:   &IssueTrackerFailedMock{},
+					gitRepo:        &GitRepoMock{},
+					versionControl: &VersionControlMock{},
+					logger:         &terminal.Logger{},
 				},
 				startParams: StartParams{
 					ID:                  "test",
@@ -121,9 +124,10 @@ func TestStart(t *testing.T) {
 				startParams StartParams
 			}{
 				command: Command{
-					IssueTracker:   &IssueTrackerMock{},
-					GitRepo:        &GitRepoFailedMock{},
-					VersionControl: &VersionControlMock{},
+					issueTracker:   &IssueTrackerMock{},
+					gitRepo:        &GitRepoFailedMock{},
+					versionControl: &VersionControlMock{},
+					logger:         &terminal.Logger{},
 				},
 				startParams: StartParams{
 					ID:                  "test",
@@ -139,9 +143,10 @@ func TestStart(t *testing.T) {
 				startParams StartParams
 			}{
 				command: Command{
-					IssueTracker:   &IssueTrackerMock{},
-					GitRepo:        &GitRepoMock{},
-					VersionControl: &VersionControlFailedMock{},
+					issueTracker:   &IssueTrackerMock{},
+					gitRepo:        &GitRepoMock{},
+					versionControl: &VersionControlFailedMock{},
+					logger:         &terminal.Logger{},
 				},
 				startParams: StartParams{
 					ID:                  "test",

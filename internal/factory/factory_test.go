@@ -43,7 +43,7 @@ func TestGitRepo(t *testing.T) {
 				t.Error(err)
 			}
 
-			return
+			continue
 		}
 
 		if diff := deep.Equal(err, tt.expectedError); diff != nil {
@@ -66,7 +66,7 @@ func TestIssueTracker(t *testing.T) {
 		{
 			IssueTrackerParams{Provider: "invalid", Host: "test", Username: "test", Key: "test"},
 			nil,
-			errors.New("invalid git repository"),
+			errors.New("invalid issue tracker"),
 		},
 	}
 
@@ -83,7 +83,7 @@ func TestIssueTracker(t *testing.T) {
 				t.Error(err)
 			}
 
-			return
+			continue
 		}
 
 		if diff := deep.Equal(err, tt.expectedError); diff != nil {

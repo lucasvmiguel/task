@@ -1,17 +1,28 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
 
 	"github.com/lucasvmiguel/task/internal/command"
 	"github.com/lucasvmiguel/task/internal/factory"
+	"github.com/lucasvmiguel/task/internal/log/terminal"
 	"github.com/lucasvmiguel/task/internal/versioncontrol/git"
 
+	"github.com/pkg/errors"
 	"github.com/urfave/cli/v2"
 	"gopkg.in/yaml.v2"
+)
+
+var (
+	// default log struct for this CLI
+	log = &terminal.Logger{}
+
+	// version control is initialized without using factory,
+	// different than issue tracker for example, because
+	// there are no plans of implementing others than git
+	vc = &git.Client{}
 )
 
 // CLI Configuration
@@ -41,26 +52,29 @@ type configuration struct {
 var (
 	startCMD = &cli.Command{
 		Name:  "start",
-		Usage: "start a task",
+		Usage: "starts a task",
 		Action: func(c *cli.Context) error {
+			log.Info("command start has been executed")
+			log.DebugEnabled = c.IsSet("debug")
+
 			configPath := c.String("config-path")
 			if configPath == "" {
-				fmt.Println(errors.New("config-path flag must be present"))
-				os.Exit(1)
+				exitWithError(errors.New("config-path flag must be present, run 'task --help' for more info"), "")
 			}
 
 			cfg := config(configPath)
 
+			log.Infof("git repository provider: %s", cfg.GitRepo.Provider)
 			gitRepo, err := factory.GitRepo(factory.GitRepoParams{
 				Provider: factory.GitRepoProvider(cfg.GitRepo.Provider),
 				Host:     cfg.GitRepo.Host,
 				Token:    cfg.GitRepo.Token,
 			})
 			if err != nil {
-				fmt.Println(err.Error())
-				os.Exit(1)
+				exitWithError(err, "failed to create git repository")
 			}
 
+			log.Infof("issue track provider: %s", cfg.IssueTracker.Provider)
 			issueTracker, err := factory.IssueTracker(factory.IssueTrackerParams{
 				Provider: factory.IssueTrackerProvider(cfg.IssueTracker.Provider),
 				Host:     cfg.IssueTracker.Host,
@@ -68,21 +82,17 @@ var (
 				Key:      cfg.IssueTracker.Key,
 			})
 			if err != nil {
-				fmt.Println(err.Error())
-				os.Exit(1)
+				exitWithError(err, "failed to create issue track")
 			}
 
 			cmd, err := command.New(command.NewParams{
-				IssueTracker: issueTracker,
-				GitRepo:      gitRepo,
-				// version control is initialized without using factory,
-				// different than issue tracker for example, because
-				// there are no plans of implementing others than git
-				VersionControl: &git.Client{},
+				IssueTracker:   issueTracker,
+				GitRepo:        gitRepo,
+				VersionControl: vc,
+				Logger:         log,
 			})
 			if err != nil {
-				fmt.Println(err.Error())
-				os.Exit(1)
+				exitWithError(err, "failed to create command")
 			}
 
 			err = cmd.Start(command.StartParams{
@@ -91,8 +101,7 @@ var (
 				DescriptionTemplate: cfg.GitRepo.Command.Start.Description,
 			})
 			if err != nil {
-				fmt.Println(err.Error())
-				os.Exit(1)
+				exitWithError(err, "failed running start")
 			}
 
 			return err
@@ -106,7 +115,12 @@ var (
 	configPathFlag = &cli.StringFlag{
 		Name:    "config-path",
 		Aliases: []string{"c"},
-		Usage:   "task config path yaml",
+		Usage:   "config path yaml",
+	}
+	debugFlag = &cli.StringFlag{
+		Name:    "debug",
+		Aliases: []string{"d"},
+		Usage:   "helps to debug",
 	}
 )
 
@@ -114,10 +128,10 @@ var (
 func main() {
 	app := &cli.App{
 		Name:        "task",
-		Description: "TODO",
-		Usage:       "TODO",
+		Description: "task is a command line to automate the process of creating and ending coding tasks",
 		Flags: []cli.Flag{
 			configPathFlag,
+			debugFlag,
 		},
 		Commands: []*cli.Command{
 			startCMD,
@@ -147,4 +161,9 @@ func config(path string) configuration {
 	}
 
 	return c
+}
+
+func exitWithError(err error, message string) {
+	log.Error(errors.Wrap(err, message))
+	os.Exit(1)
 }
