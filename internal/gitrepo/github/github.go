@@ -5,6 +5,7 @@ import (
 	"context"
 
 	"github.com/lucasvmiguel/task/internal/gitrepo"
+	"github.com/lucasvmiguel/task/internal/utils"
 
 	"github.com/google/go-github/v32/github"
 	"github.com/pkg/errors"
@@ -61,5 +62,34 @@ func (c *Client) CreatePR(newPR gitrepo.NewPR) (string, error) {
 		return "", errors.Wrap(err, "failed to create PR on github")
 	}
 
+	err = c.addLabelsToPR(*p.Number, newPR)
+	if err != nil {
+		return "", errors.Wrap(err, "failed to create label on the PR on github")
+	}
+
 	return p.GetHTMLURL(), nil
+}
+
+func (c *Client) addLabelsToPR(prNumber int, pr gitrepo.NewPR) error {
+	if pr.Labels == nil || len(pr.Labels) <= 0 {
+		return nil
+	}
+	ctx := context.Background()
+
+	for _, l := range pr.Labels {
+		color := utils.RandomHexColor()
+		label := &github.Label{
+			Name:  &l,
+			Color: &color,
+		}
+
+		c.client.Issues.CreateLabel(ctx, pr.Org, pr.Repository, label)
+	}
+
+	_, _, err := c.client.Issues.AddLabelsToIssue(ctx, pr.Org, pr.Repository, prNumber, pr.Labels)
+	if err != nil {
+		return errors.Wrap(err, "failed to add labels to issue on github")
+	}
+
+	return nil
 }

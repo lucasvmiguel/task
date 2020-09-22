@@ -17,4 +17,5 @@ type NewPR struct {
 	Description string
 	Org         string
 	Repository  string
+	Labels      []string
 }

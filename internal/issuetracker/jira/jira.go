@@ -2,6 +2,8 @@
 package jira
 
 import (
+	"fmt"
+
 	"github.com/lucasvmiguel/task/internal/issuetracker"
 
 	"github.com/andygrunwald/go-jira"
@@ -11,6 +13,7 @@ import (
 // Client to communicate with Jira
 type Client struct {
 	client *jira.Client
+	host   string
 }
 
 // Authenticate to a Jira server
@@ -30,6 +33,7 @@ func (c *Client) Authenticate(host, username, key string) error {
 	}
 
 	c.client = client
+	c.host = host
 	return nil
 }
 
@@ -48,5 +52,6 @@ func (c *Client) Issue(ID string) (*issuetracker.Issue, error) {
 		ID:          issue.ID,
 		Title:       issue.Fields.Summary,
 		Description: issue.Fields.Description,
+		Link:        fmt.Sprintf("%s/browse/%s", c.host, ID),
 	}, nil
 }
