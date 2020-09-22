@@ -12,6 +12,7 @@ type StartParams struct {
 	ID                  string
 	TitleTemplate       string
 	DescriptionTemplate string
+	Labels              []string
 }
 
 // Start command flow:
@@ -31,6 +32,7 @@ func (c *Command) Start(params StartParams) error {
 		return errors.Wrap(err, "failed to fetch issue")
 	}
 	issue.ID = params.ID
+	c.logger.Infof("issue link: %v", issue.Link)
 
 	origin, err := c.versionControl.Origin()
 	if err != nil {
@@ -48,6 +50,7 @@ func (c *Command) Start(params StartParams) error {
 		Description: replaceInTemplate(params.DescriptionTemplate, issue),
 		Org:         origin.Org,
 		Repository:  origin.Repository,
+		Labels:      params.Labels,
 	}
 
 	c.logger.Debugf("start params: %v", spew.Sdump(newPR))
@@ -56,7 +59,7 @@ func (c *Command) Start(params StartParams) error {
 		return errors.Wrap(err, "failed to create pull request")
 	}
 
-	c.logger.Infof("PR created, here is the link: %s", prLink)
+	c.logger.Infof("Pull request created, here is the link: %s", prLink)
 
 	return nil
 }

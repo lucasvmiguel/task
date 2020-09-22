@@ -15,4 +15,5 @@ type Issue struct {
 	ID          string
 	Title       string
 	Description string
+	Link        string
 }

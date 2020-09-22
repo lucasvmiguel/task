@@ -40,8 +40,9 @@ type configuration struct {
 		Token    string `yaml:"token"`
 		Command  struct {
 			Start struct {
-				Title       string `yaml:"title"`
-				Description string `yaml:"description"`
+				Title       string   `yaml:"title"`
+				Description string   `yaml:"description"`
+				Labels      []string `yaml:"labels"`
 			} `yaml:"start"`
 		} `yaml:"command"`
 	} `yaml:"git-repository"`
@@ -101,6 +102,7 @@ var (
 				ID:                  c.Args().First(),
 				TitleTemplate:       cfg.GitRepo.Command.Start.Title,
 				DescriptionTemplate: cfg.GitRepo.Command.Start.Description,
+				Labels:              cfg.GitRepo.Command.Start.Labels,
 			})
 			if err != nil {
 				exitWithError(err, "failed running start")

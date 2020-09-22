@@ -58,6 +58,7 @@ func replaceInTemplate(text string, issue *issuetracker.Issue) string {
 		"{{ISSUE_TRACKER.ID}}", issue.ID,
 		"{{ISSUE_TRACKER.TITLE}}", issue.Title,
 		"{{ISSUE_TRACKER.DESCRIPTION}}", issue.Description,
+		"{{ISSUE_TRACKER.LINK}}", issue.Link,
 	)
 
 	return r.Replace(text)
