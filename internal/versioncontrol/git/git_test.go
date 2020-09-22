@@ -50,7 +50,7 @@ func TestSplitOriginURL(t *testing.T) {
 				t.Error(err)
 			}
 
-			return
+			continue
 		}
 
 		if diff := deep.Equal(err, tt.expectedError); diff != nil {
